@@ -1,0 +1,67 @@
+# name: Deploy to Hugging Face Space
+
+# # Trigger this workflow whenever a git push to the main branch affects any app-related files (listed in paths)
+# on:
+#   push:
+#     branches:
+#       - main  
+#     paths:
+#       - "frontend/**"
+#       - "backend/**"
+#       - "src/**"
+#       - "Dockerfile"
+#       - "requirements.txt"
+#       - "start.sh"
+#       - "README-hf-space.md"
+#   workflow_dispatch:  # allow manual trigger from GitHub Actions UI
+
+# jobs:
+#   sync-to-huggingface:
+#     runs-on: ubuntu-latest  # runner: ephemeral (temporary) Ubuntu VM 
+
+#     steps:
+#       # Step 1: Clone the repository into the runner uing GitHub's checkout action  
+#       - name: Check out repository
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1  # 0 for full git history, 1 for lastest commit only
+
+#      # Step 2: Create directory with only files needed for the Hugging Face Space deployment
+#       - name: Create deployment directory
+#         run: |
+#           mkdir deploy
+#           cp requirements.txt deploy/
+#           cp Dockerfile deploy/
+#           cp start.sh deploy/
+#           mkdir -p deploy/frontend deploy/backend deploy/src 
+#           cp -r frontend/* deploy/frontend/
+#           cp -r backend/* deploy/backend/
+#           cp -r src/* deploy/src/
+#           cp README-hf-space.md deploy/README.md  # rename for Hugging Face Space 
+#           cp LICENSE deploy/  
+
+#       # Step 3: Push the code to the Hugging Face Space repository
+#       - name: Push to Hugging Face Space 
+#         env:
+#           HF_TOKEN: ${{ secrets.HF_TOKEN }}  # access token (write access) created on HF and stored in GitHub repo secrets
+#           HF_USER: JensBender
+#           HF_SPACE: loan-default-prediction-app
+#         run: |
+#           # Make deployment directory a Git repo
+#           cd deploy
+#           git init
+
+#           # Configure Git to tell HF that push comes from GitHub Actions and prevent “who are you?” errors
+#           git config user.name "github-actions[bot]"  
+#           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+#           # Add Hugging Face Space as a remote repository
+#           git remote add origin https://$HF_USER:$HF_TOKEN@huggingface.co/spaces/$HF_USER/$HF_SPACE
+
+#           # Commit changes
+#           git add .
+#           git commit -m "Deploy from GitHub Actions"
+#           git branch -M main
+
+#           # Force push to make the HF Space exactly match the deploy directory
+#           git push --force origin main

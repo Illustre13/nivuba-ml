@@ -1,0 +1,43 @@
+# Project-specific files
+data/
+models/
+images/
+README.md
+README-hf-hub.md
+README-hf-space.md
+GEMINI.md
+LICENSE
+frontend/old_gradio_app.py
+upload_model_to_huggingface.py
+.github/workflows/deploy-to-hf.yml
+
+# Environment variables
+.env
+
+# Virtual environment
+*venv*/
+
+# Test-related files
+tests/
+**/.pytest_cache/
+pytest.ini 
+requirements-test.txt
+
+# Python artifacts
+**/__pycache__/
+
+# IDE-related files
+.vscode/
+
+# Notebook-related files
+**/*.ipynb
+**/.ipynb_checkpoints/
+requirements-notebook.txt
+
+# Git-related files
+.git
+.gitignore
+
+# Docker-related files
+Dockerfile
+.dockerignore

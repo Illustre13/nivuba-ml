@@ -1,0 +1,30 @@
+# Project-specific files
+data/
+models/
+images/header-image-alternative.webp
+images/accuracy_comparison_baseline.png
+images/f1_c1_comparison_baseline.png
+images/precision_c1_comparison_baseline.png
+images/recall_c1_comparison_baseline.png
+images/feature_target_correlations.png
+images/linkedin-thumbnail.jpg
+frontend/old_gradio_app.py
+tests/unit/old_test_frontend.py
+test_loan_default_prediction.ipynb
+GEMINI.md 
+
+# Environment variables
+.env
+
+# Virtual environment
+*venv*/
+
+# IDE artifacts
+.vscode/
+**/.ipynb_checkpoints/
+
+# Python artifacts
+**/__pycache__/
+
+# Test artifacts
+**/.pytest_cache/
