@@ -10,6 +10,9 @@ services:
       dockerfile: Dockerfile
     environment:
       MAXMIND_LICENSE_KEY: ${MAXMIND_LICENSE_KEY:-}
+      HF_HUB_DISABLE_SYMLINKS_WARNING: '1'
+    volumes:
+      - hf_cache:/root/.cache/huggingface
     ports:
       - '7860:7860'
     healthcheck:
@@ -17,4 +20,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 120s
+
+volumes:
+  hf_cache:
