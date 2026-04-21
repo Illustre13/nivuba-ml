@@ -1,6 +1,7 @@
 # Project-specific files
 data/
-models/
+models/*
+!models/loan_default_rf_pipeline.joblib
 images/
 README.md
 README-hf-hub.md

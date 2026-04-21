@@ -6,6 +6,7 @@ import logging.config
 import json
 import uuid
 import time
+import os
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Request
@@ -164,11 +165,21 @@ except FileNotFoundError:
 
 # --- ML Pipeline ---
 PIPELINE_VERSION_TAG = "v1.0"
-pipeline = load_pipeline_from_huggingface(
-    repo_id="JensBender/loan-default-prediction-pipeline",
-    filename="loan_default_rf_pipeline.joblib",
-    revision=PIPELINE_VERSION_TAG,
-)
+PIPELINE_LOCAL_PATH = Path(os.getenv("PIPELINE_LOCAL_PATH", "models/loan_default_rf_pipeline.joblib"))
+
+try:
+    pipeline = load_pipeline_from_huggingface(
+        repo_id="JensBender/loan-default-prediction-pipeline",
+        filename="loan_default_rf_pipeline.joblib",
+        revision=PIPELINE_VERSION_TAG,
+    )
+except Exception as hf_error:
+    logger.warning(
+        "Falling back to local pipeline at '%s' after Hugging Face load failed: %s",
+        PIPELINE_LOCAL_PATH,
+        hf_error,
+    )
+    pipeline = load_pipeline_from_local(PIPELINE_LOCAL_PATH)
 
 # --- FastAPI App ---
 app = FastAPI(title="Nivuba ML Service")

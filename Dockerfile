@@ -2,17 +2,13 @@ FROM python:3.10-slim-bookworm
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl tar dos2unix && rm -rf /var/lib/apt/lists/*
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./src ./src
 COPY ./backend ./backend
-COPY ./start.sh .
-
-RUN dos2unix ./start.sh && chmod +x ./start.sh
+COPY ./models ./models
 
 EXPOSE 7860
 
-CMD ["./start.sh"]
+CMD ["sh", "-c", "mkdir -p /app/geoip_db && exec uvicorn backend.app:app --host 0.0.0.0 --port 7860"]
