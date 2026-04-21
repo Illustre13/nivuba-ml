@@ -1,5 +1,3 @@
-version: '3.9'
-
 # Runs the ML service standalone.
 # Usage: docker compose -f docker-compose.dev.yml up --build
 
