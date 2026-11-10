@@ -167,19 +167,16 @@ except FileNotFoundError:
 PIPELINE_VERSION_TAG = "v1.0"
 PIPELINE_LOCAL_PATH = Path(os.getenv("PIPELINE_LOCAL_PATH", "models/loan_default_rf_pipeline.joblib"))
 
-try:
+# Prefer the artifact baked into the image (see Dockerfile); download only if it is missing.
+if PIPELINE_LOCAL_PATH.exists():
+    pipeline = load_pipeline_from_local(PIPELINE_LOCAL_PATH)
+else:
+    logger.info("No local pipeline at '%s'; downloading from Hugging Face Hub.", PIPELINE_LOCAL_PATH)
     pipeline = load_pipeline_from_huggingface(
         repo_id="JensBender/loan-default-prediction-pipeline",
         filename="loan_default_rf_pipeline.joblib",
         revision=PIPELINE_VERSION_TAG,
     )
-except Exception as hf_error:
-    logger.warning(
-        "Falling back to local pipeline at '%s' after Hugging Face load failed: %s",
-        PIPELINE_LOCAL_PATH,
-        hf_error,
-    )
-    pipeline = load_pipeline_from_local(PIPELINE_LOCAL_PATH)
 
 # --- FastAPI App ---
 app = FastAPI(title="Nivuba ML Service")
@@ -275,7 +272,8 @@ def predict(pipeline_input: PipelineInput | list[PipelineInput], request: Reques
 # Consumed by @nivuba-core PredictionsService.
 # Maps the NestJS payload to pipeline features using safe defaults for fields
 # the backend does not collect, then converts P(default) to a 0-1000 score
-# where score >= 700 aligns with the pipeline's optimised threshold of 0.29.
+# (score = round((1 - P(default)) * 1000); higher is safer). The approval cut-off
+# is owned by nivuba-core (DECISION_MIN_SCORE, default 700 == P(default) <= 0.30).
 @app.post("/predict", response_model=NivubaResponse)
 def predict_nivuba(payload: NivubaInput) -> NivubaResponse:
     try:

@@ -46,8 +46,9 @@ Pipeline sourced from [Hugging Face Hub](https://huggingface.co/JensBender/loan-
 Accepts the NestJS `PredictRequestDto` payload and maps it to pipeline features using safe defaults for fields not collected by the platform. Returns a 0–1000 score and RF feature importances.
 
 **Score logic:** `score = round((1 - P(default)) * 1000)`
-- score ≥ 700 → P(default) < 0.30, aligning with the 0.29 optimised threshold → **APPROVED**
-- score < 700 → **REJECTED**
+- The service only returns the score. The approve/reject policy lives in nivuba-core
+  (`DECISION_MIN_SCORE`, default 700 ⇔ P(default) ≤ 0.30, plus an affordability check).
+- `shap_values` currently holds the model's *global* feature importances (identical for every request), not per-applicant SHAP values.
 
 **Request:**
 ```json
